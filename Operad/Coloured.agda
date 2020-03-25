@@ -28,19 +28,19 @@ module Operad.Coloured where
     Opsᶜ n = curry n (Ops' n)
 
     compᶜ : (n : ℕ) -> Π[ cs ∈ n ⊗ const C ] (
-             (R : C) -> Ops' n cs R -> Π[ ns ∈ n ⊗ const ℕ ] (
-               Π[ css ∈ n ⊗ (λ i -> proj⊤ᵢ i ns ⊛ C) ] (
-                 let css' = addAll⊤ n ns css in
-                 n ⊗ (λ i -> Ops' (proj⊤ᵢ i ns) (proj⊤ᵢ i css') (proj⊤ᵢ i cs)) ⇶
-                              Ops' (ΣFin n ns) (join n ns css') R
-               )
-             )
-           )
+              (R : C) -> Ops' n cs R -> Π[ ns ∈ n ⊗ const ℕ ] (
+                Π[ css ∈ n ⊗ (λ i -> proj⊤ᵢ i ns ⊛ C) ] (
+                  let css' = addAll⊤ n ns css in
+                  n ⊗ (λ i -> Ops' (proj⊤ᵢ i ns) (proj⊤ᵢ i css') (proj⊤ᵢ i cs)) ⇶
+                               Ops' (ΣFin n ns) (join n ns css') R
+                )
+              )
+            )
     compᶜ n = curry n λ cs R op -> curry n λ ns -> curry n (comp'' n cs R op ns)
       where
         comp'' : (n : ℕ) -> (cs : n ⊛⊤ C) -> (R : C) -> Ops' n cs R ->
-                (ns : n ⊛⊤ ℕ) -> (css : n ⊗⊤ λ i -> proj⊤ᵢ i ns ⊛ C) ->
-                let css' = addAll⊤ n ns css in
-                  n ⊗ (λ i -> Ops' (proj⊤ᵢ i ns) (proj⊤ᵢ i css') (proj⊤ᵢ i cs)) ⇶
-                  Ops' (ΣFin n ns) (join n ns css') R
+                 (ns : n ⊛⊤ ℕ) -> (css : n ⊗⊤ λ i -> proj⊤ᵢ i ns ⊛ C) ->
+                 let css' = addAll⊤ n ns css in
+                   n ⊗ (λ i -> Ops' (proj⊤ᵢ i ns) (proj⊤ᵢ i css') (proj⊤ᵢ i cs)) ⇶
+                   Ops' (ΣFin n ns) (join n ns css') R
         comp'' n cs R op ns css = curry' n (comp' n cs R op ns (addAll⊤ n ns css))
