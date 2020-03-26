@@ -9,6 +9,7 @@ module Operad.Container where
   open import Data.Unit
   open import Data.W.Indexed
   open import Level
+  open import Operad
   open import Operad.Nary.Sigma
   open import Relation.Unary
 
@@ -42,6 +43,9 @@ module Operad.Container where
     = Container⊥ (Grouping l) K
         (λ g -> ⊤ ⊎ Fin (Size g))
         (λ g -> λ { (inj₁ _) -> Size g; (inj₂ i) -> Elem g i })
+
+  ToContainer : (O : Operad l₁) -> Container ℕ ℕ l₁ 0ℓ
+  ToContainer O = FinContainer (Operad.Ops O)
 
   unfold : {O : Set l₁} ->
            {C : O -> Set l₂} ->

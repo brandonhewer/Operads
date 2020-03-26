@@ -4,13 +4,16 @@ module Operad.Free where
   open import Data.Fin
   open import Data.Nat using (ℕ)
   open import Data.Product using (_×_; _,_; Σ-syntax)
-  open import Data.Sum using (inj₁; inj₂)
+  open import Data.Sum using (_⊎_; inj₁; inj₂)
+  open import Data.Unit
   open import Data.W.Indexed
   open import Function using (_∘_)
   open import Level
   open import Operad
   open import Operad.Container
+  open import Operad.Morphism using (_→ₒ_)
   open import Operad.Nary.Sigma
+  open import Relation.Binary.PropositionalEquality
   open import Relation.Unary
 
   private
@@ -18,34 +21,64 @@ module Operad.Free where
       n : ℕ
       l₁ l₂ : Level
 
-  open Operad.Operad
+    FreeId : (K : ℕ -> Set l₁) -> ℕ -> Set l₁
+    FreeId K 0 = K 0
+    FreeId K 1 = ⊤ ⊎ K 1
+    FreeId K (ℕ.suc (ℕ.suc n)) = K (ℕ.suc (ℕ.suc n))
 
-  FreeOperad : (K : ℕ -> Set l₁) -> K 1 -> Operad l₁
-  Ops (FreeOperad K I) = W (FinContainer K)
-  comp' (FreeOperad K I) n op ns ops
-    = sup (inj₂ (group n ns) , λ { (inj₁ _) -> op; (inj₂ i) -> proj n ns ops i })
-    where
-      proj : (n : ℕ) -> (ns : n ⊛⊤ ℕ) -> n ⊗⊤ (λ i → W (FinContainer K) (proj⊤ᵢ i ns)) ->
-             (i : Fin n) -> W (FinContainer K) (proj⊤ᵢ i ns)
-      proj (ℕ.suc _) _ (op , _) Fin.zero = op
-      proj (ℕ.suc n) (_ , ms) (_ , ops) (Fin.suc i) = proj n ms ops i
-  id (FreeOperad K I) = sup (inj₁ I , λ ())
+    η : (K : ℕ -> Set l₁) -> K n -> FreeId K n
+    η {n = 0} _ x = x
+    η {n = 1} K x = inj₂ x
+    η {n = ℕ.suc (ℕ.suc n)} _ x = x
 
-  iterₒ : {K : ℕ -> Set l₁} {I : K 1} {O : Operad l₂} -> K ⊆ Ops O -> FreeOperad K I →ₒ O
-  iterₒ {K = K} {O = O} ⟪_⟫ = iter (FinContainer K) φ
-    where
-      φ : ⟦ FinContainer K ⟧ (Ops O) ⊆ Ops O
-      φ (inj₁ x , _) = ⟪ x ⟫
-      φ (inj₂ (group m ms) , y) = comp' O m (y (inj₁ _)) ms (tabulate (y ∘ inj₂))
+    wproj : {K : ℕ -> Set l₁} -> (n : ℕ) -> (ns : n ⊛⊤ ℕ) ->
+            n ⊗⊤ (λ i → W (FinContainer (FreeId K)) (proj⊤ᵢ i ns)) ->
+            (i : Fin n) -> W (FinContainer (FreeId K)) (proj⊤ᵢ i ns)
+    wproj (ℕ.suc _) _ (op , _) Fin.zero = op
+    wproj (ℕ.suc n) (_ , ms) (_ , ops) (Fin.suc i) = wproj n ms ops i
+
+    open Operad.Operad
+
+    rep : {K : ℕ -> Set l₁} -> (O : Operad l₂) -> (n : ℕ) -> FreeId K n -> K ⊆ Ops O -> Ops O n
+    rep _ 0 x ⟪_⟫ = ⟪ x ⟫
+    rep O 1 (inj₁ _) _ = id O
+    rep _ 1 (inj₂ x) ⟪_⟫ = ⟪ x ⟫
+    rep _ (ℕ.suc (ℕ.suc n)) x ⟪_⟫ = ⟪ x ⟫
+
+    φ : {K : ℕ -> Set l₁} -> (O : Operad l₂) -> K ⊆ Ops O -> ⟦ FinContainer (FreeId K) ⟧ (Ops O) ⊆ Ops O
+    φ O ⟪_⟫ {n} (inj₁ x , _) = rep O n x ⟪_⟫ 
+    φ O ⟪_⟫ (inj₂ (group m ms) , y) = comp' O m (y (inj₁ _)) ms (tabulate (y ∘ inj₂))
+
+    open _→ₒ_
+
+    tab-map≡ : (K : ℕ -> Set l₁) (O : Operad l₂) (⟪_⟫ : K ⊆ Ops O) (n : ℕ) (ns : n ⊛⊤ ℕ)
+               (fs : n ⊗⊤ λ i → W (FinContainer (FreeId K)) (proj⊤ᵢ i ns)) ->
+               tabulate (λ i → iter (FinContainer (FreeId K)) (φ O ⟪_⟫) (wproj n ns fs i)) ≡
+               map⊤ n (λ z → iter (FinContainer (FreeId K)) (φ O ⟪_⟫)) fs
+    tab-map≡ K O ⟪_⟫ 0 _ _ = refl
+    tab-map≡ K O ⟪_⟫ (ℕ.suc n) (m , ms) (f , fs)
+      = cong (iter (FinContainer (FreeId K)) (φ O ⟪_⟫) f ,_) (tab-map≡ K O ⟪_⟫ n ms fs)
+
+  FreeOperad : (K : ℕ -> Set l₁) -> Operad l₁
+  Ops (FreeOperad K) = W (FinContainer (FreeId K))
+  comp' (FreeOperad K) n op ns ops
+    = sup (inj₂ (group n ns) , λ { (inj₁ _) -> op; (inj₂ i) -> wproj n ns ops i })
+  id (FreeOperad K) = sup (inj₁ (inj₁ _) , λ ())
+
+  iterₒ : {K : ℕ -> Set l₁} {O : Operad l₂} -> K ⊆ Ops O -> FreeOperad K →ₒ O
+  Oᴹ (iterₒ {K = K} {O = O} ⟪_⟫) = iter (FinContainer (FreeId K)) (φ O ⟪_⟫)
+  id≡ (iterₒ _) = refl
+  comp≡ (iterₒ {K = K} {O = O} ⟪_⟫) n g ns fs rewrite tab-map≡ K O ⟪_⟫ n ns fs = refl
 
   Corolla : (ℕ -> Set l₁) -> ℕ -> Set l₁
   Corolla {l₁} K n = Σ[ G ∈ Grouping l₁ n ] (K (Size G) × (Size G ⊗⊤ λ i -> K (Elem G i)))
 
-  unfoldₒ : {K : ℕ -> Set l₁} {I : K 1} ->
+  unfoldₒ : {K : ℕ -> Set l₁} ->
             ({n : ℕ} -> K n -> Corolla K n) ->
-            ℕ -> K ⊆ Ops (FreeOperad K I)
-  unfoldₒ {K = K} ⟪_⟫ = unfold (λ x -> x) φ
+            ℕ -> K ⊆ Ops (FreeOperad K)
+  unfoldₒ {K = K} ⟪_⟫ = unfold (λ x -> η K x) ψ
     where
-      φ : K ⊆ ⟦ FinContainer K ⟧ K
-      φ f = let (g , x , xs) = ⟪ f ⟫ in inj₂ g , λ { (inj₁ _) -> x; (inj₂ i) -> proj⊤ᵢ i xs }
+      ψ : K ⊆ ⟦ FinContainer (FreeId K) ⟧ K
+      ψ f = let (g , x , xs) = ⟪ f ⟫ in inj₂ g , λ { (inj₁ _) -> x; (inj₂ i) -> proj⊤ᵢ i xs }
+
 

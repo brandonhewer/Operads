@@ -67,6 +67,10 @@ module Operad.Nary.Sigma where
   addAll⊤ 0 _ _ = _
   addAll⊤ (ℕ.suc n) (m , ms) (x , xs) = add⊤ m x , addAll⊤ n ms xs
 
+  map⊤ : (n : ℕ) -> {F : Fin n -> Set l₁} -> {G : Fin n -> Set l₂} -> (∀ i -> F i -> G i) -> n ⊗⊤ F -> n ⊗⊤ G
+  map⊤ 0 _ _ = _
+  map⊤ (ℕ.suc n) f (x , xs) = f Fin.zero x , map⊤ n (λ i -> f (Fin.suc i)) xs
+
   ΣFin : (n : ℕ) -> n ⊛⊤ ℕ -> ℕ
   ΣFin 0 _ = 0
   ΣFin (ℕ.suc n) (x , xs) = x + ΣFin n xs
