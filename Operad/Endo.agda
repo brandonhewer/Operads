@@ -6,13 +6,9 @@ module Operad.Endo where
   open import Operad
   open import Operad.Nary.Pi
 
-  private
-    variable
-      l₁ : Level
-
   open Operad.Operad
 
-  EndoOperad : (X : Set l₁) -> Operad l₁
+  EndoOperad : {l₁ : Level} -> (X : Set l₁) -> Operad l₁
   Ops (EndoOperad X) n = n ⊛ X ⇶ X
   comp' (EndoOperad X) 0 x _ _ = x
   comp' (EndoOperad X) 1 g (0 , _) (x , _) = g x
