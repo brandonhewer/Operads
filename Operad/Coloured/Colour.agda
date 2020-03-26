@@ -24,8 +24,9 @@ module Operad.Coloured.Colour where
   join-repeat : {X : Set l₁} -> (x : X) -> (n : ℕ) -> (ns : n ⊛⊤ ℕ) ->
                 join n ns (repeat-nest x n ns) ≡ repeat x (ΣFin n ns)
   join-repeat _ 0 _ = refl
-  join-repeat x (ℕ.suc n) (0 , ms) = join-repeat x n ms
-  join-repeat x (ℕ.suc n) (ℕ.suc m , ms) = cong (x ,_) (join-repeat x (ℕ.suc n) (m , ms))
+  join-repeat _ 1 (m , _) = refl
+  join-repeat x (ℕ.suc (ℕ.suc n)) (0 , ms) = join-repeat x (ℕ.suc n) ms
+  join-repeat x (ℕ.suc (ℕ.suc n)) (ℕ.suc m , ms) = cong (x ,_) (join-repeat x (ℕ.suc (ℕ.suc n)) (m , ms))
 
   discolour : ColouredOperad l₁ ⊤ -> Operad l₁
   Ops (discolour O) n = Ops' O n (repeat _ n) _

@@ -73,7 +73,8 @@ module Operad.Nary.Sigma where
 
   ΣFin : (n : ℕ) -> n ⊛⊤ ℕ -> ℕ
   ΣFin 0 _ = 0
-  ΣFin (ℕ.suc n) (x , xs) = x + ΣFin n xs
+  ΣFin 1 (x , _) = x
+  ΣFin (ℕ.suc (ℕ.suc n)) (x , xs) = x + ΣFin (ℕ.suc n) xs
 
   concat : (m : ℕ) -> (n : ℕ) -> m ⊛⊤ X -> n ⊛⊤ X -> (m + n) ⊛⊤ X
   concat 0 _ _ ys = ys
@@ -81,7 +82,8 @@ module Operad.Nary.Sigma where
 
   join : (n : ℕ) -> (ns : n ⊛⊤ ℕ) -> n ⊗⊤ (λ i -> proj⊤ᵢ i ns ⊛⊤ X) -> ΣFin n ns ⊛⊤ X
   join 0 _ _ = _
-  join (ℕ.suc n) (m , ms) (x , xs) = concat m (ΣFin n ms) x (join n ms xs)
+  join 1 _ (x , _) = x
+  join (ℕ.suc (ℕ.suc n)) (m , ms) (x , xs) = concat m (ΣFin (ℕ.suc n) ms) x (join (ℕ.suc n) ms xs)
 
   repeat : {X : Set l₁} -> X -> (n : ℕ) -> n ⊛⊤ X
   repeat _ 0 = _

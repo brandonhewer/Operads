@@ -73,12 +73,15 @@ module Operad.Free where
   Corolla : (ℕ -> Set l₁) -> ℕ -> Set l₁
   Corolla {l₁} K n = Σ[ G ∈ Grouping l₁ n ] (K (Size G) × (Size G ⊗⊤ λ i -> K (Elem G i)))
 
-  unfoldₒ : {K : ℕ -> Set l₁} ->
-            ({n : ℕ} -> K n -> Corolla K n) ->
-            ℕ -> K ⊆ Ops (FreeOperad K)
+  unfoldₒ : {K : ℕ -> Set l₁} -> K ⊆ Corolla K -> ℕ -> K ⊆ Ops (FreeOperad K)
   unfoldₒ {K = K} ⟪_⟫ = unfold (λ x -> η K x) ψ
     where
       ψ : K ⊆ ⟦ FinContainer (FreeId K) ⟧ K
       ψ f = let (g , x , xs) = ⟪ f ⟫ in inj₂ g , λ { (inj₁ _) -> x; (inj₂ i) -> proj⊤ᵢ i xs }
 
+  
+  
 
+  
+
+  
