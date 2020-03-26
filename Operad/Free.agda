@@ -78,10 +78,3 @@ module Operad.Free where
     where
       ψ : K ⊆ ⟦ FinContainer (FreeId K) ⟧ K
       ψ f = let (g , x , xs) = ⟪ f ⟫ in inj₂ g , λ { (inj₁ _) -> x; (inj₂ i) -> proj⊤ᵢ i xs }
-
-  
-  
-
-  
-
-  
