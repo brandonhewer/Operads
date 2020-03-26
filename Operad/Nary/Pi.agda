@@ -3,7 +3,7 @@ module Operad.Nary.Pi where
   open import Data.Fin
   open import Data.Nat using (ℕ)
   open import Data.Product using (_,_)
-  open import Function using (const)
+  open import Function using (_∘_; const)
   open import Level
   open import Operad.Nary.Sigma
 
