@@ -71,10 +71,10 @@ module Operad.Free where
   comp≡ (iterₒ {K = K} {O = O} ⟪_⟫) n g ns fs rewrite tab-map≡ K O ⟪_⟫ n ns fs = refl
 
   Corolla : (ℕ -> Set l₁) -> ℕ -> Set l₁
-  Corolla {l₁} K n = Σ[ G ∈ Grouping l₁ n ] (K (Size G) × (Size G ⊗⊤ λ i -> K (Elem G i)))
+  Corolla {l₁} K n = Σ[ G ∈ Grouping l₁ n ] (K (Size G) × Size G ⊗⊤ (K ∘ Elem G))
 
   unfoldₒ : {K : ℕ -> Set l₁} -> K ⊆ Corolla K -> ℕ -> K ⊆ Ops (FreeOperad K)
-  unfoldₒ {K = K} ⟪_⟫ = unfold (λ x -> η K x) ψ
+  unfoldₒ {K = K} ⟪_⟫ = unfold (η K) ψ
     where
       ψ : K ⊆ ⟦ FinContainer (FreeId K) ⟧ K
       ψ f = let (g , x , xs) = ⟪ f ⟫ in inj₂ g , λ { (inj₁ _) -> x; (inj₂ i) -> proj⊤ᵢ i xs }

@@ -92,5 +92,3 @@ module Operad.Nary.Sigma where
   repeat-nest : {X : Set l₁} -> X -> (n : ℕ) -> (ns : n ⊛⊤ ℕ) -> n ⊗⊤ λ i -> proj⊤ᵢ i ns ⊛⊤ X
   repeat-nest _ 0 _ = _
   repeat-nest x (ℕ.suc n) (m , ms) = repeat x m , repeat-nest x n ms
-
-  

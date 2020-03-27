@@ -9,7 +9,7 @@ module Operad.Coloured where
 
   private
     variable
-      l₁ : Level
+      l₁ l₂ l₃ l₄ : Level
 
   record ColouredOperad (l : Level) (C : Set l₁) : Set (suc l ⊔ l₁) where
     field
